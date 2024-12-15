@@ -1,5 +1,29 @@
 // Package benchmarks implements a benchmark library with mean, median and arbitrary quantiles.
 // It includes a pretty-printing function of duration -- that can be arbitrarily configured.
+//
+// Example 1: Simple example:
+//
+//	testParams := []int{1, 2, 3, 5, 8}
+//	testFns := make([]benchmarks.NamedFunc, len(testParams))
+//	for ii, param := range testParams {
+//		testFns.Name = fmt.Printf("Param=%d", param)
+//		testFns.Func() = func() {
+//			MyFunc(param)
+//		}
+//	}
+//	benchmarks.New(testFns...).Done()
+//
+// Example 2: Measuring a CGO call -- we use inner-repeats because the time is very small.
+//
+//	const repeats = 1000
+//	repeatedCGO := func() {
+//		for _ = range repeats {
+//			dummyCGO(unsafe.Pointer(plugin.api))
+//		}
+//	}
+//	benchmarks.New(benchmarks.NamedFunction{"CGOCall", repeatedCGO}).
+//		WithInnerRepeats(repeats).
+//		Done()
 package benchmarks
 
 import (
@@ -30,9 +54,33 @@ type NamedFunction struct {
 // DefaultQuantiles to use in benchmarking. It can be changed for a particular benchmark using Options.WithQuantiles.
 var DefaultQuantiles = []int{5, 99}
 
-// Benchmark sets up a benchmark for the list of named functions fns.
+// New sets up a benchmark for the list of named functions fns.
 // You can further configure the returned Options, and call Done() when finished to execute the benchmark.
-func Benchmark(fns ...NamedFunction) *Options {
+//
+// Example 1: Simple example:
+//
+//	testParams := []int{1, 2, 3, 5, 8}
+//	testFns := make([]benchmarks.NamedFunc, len(testParams))
+//	for ii, param := range testParams {
+//		testFns.Name = fmt.Printf("Param=%d", param)
+//		testFns.Func() = func() {
+//			MyFunc(param)
+//		}
+//	}
+//	benchmarks.New(testFns...).Done()
+//
+// Example 2: Measuring a CGO call -- we use inner-repeats because the time is very small.
+//
+//	const repeats = 1000
+//	repeatedCGO := func() {
+//		for _ = range repeats {
+//			dummyCGO(unsafe.Pointer(plugin.api))
+//		}
+//	}
+//	benchmarks.New(benchmarks.NamedFunction{"CGOCall", repeatedCGO}).
+//		WithInnerRepeats(repeats).
+//		Done()
+func New(fns ...NamedFunction) *Options {
 	return &Options{
 		fns:           fns,
 		prettyPrintFn: PrettyPrint,
@@ -67,7 +115,7 @@ func (o *Options) WithWarmUps(warmUps int) *Options {
 // WithInnerRepeats sets the expected number of inner repeats of the functions given for the benchmark and returns the updated Options instance.
 //
 // This only informs the inner repetitions inside the functions given, this library won't repeat any calls.
-// If passing a value > 1 here, you must repeat the piece of code you want to benchmark inside the functions given to Benchmark.
+// If passing a value > 1 here, you must repeat the piece of code you want to benchmark inside the functions given to New.
 //
 // This is particularly important for things that run below a few microseconds, as it mitigates the time to call the functions passed.
 // Default is 1.
@@ -113,6 +161,7 @@ func nanosecondsEstimate(est *quantile.Estimator, quantile float64) time.Duratio
 type results struct {
 	mean, median time.Duration
 	quantiles    []time.Duration
+	count        int
 }
 
 func (o *Options) benchmarkOneFunc(fn func()) results {
@@ -149,6 +198,7 @@ collection:
 		mean:      totalTime / time.Duration(count),
 		median:    nanosecondsEstimate(estimator, 0.50),
 		quantiles: make([]time.Duration, len(o.quantiles)),
+		count:     count,
 	}
 	for i, pct := range o.quantiles {
 		r.quantiles[i] = nanosecondsEstimate(estimator, float64(pct)/100.0)
@@ -171,11 +221,15 @@ func (o *Options) Done() {
 	if extraSpaces > 0 {
 		header = header + strings.Repeat(" ", extraSpaces)
 	}
-	fmt.Printf("%s\t%[1]s\t%[1]s", header, o.columnSize, "Mean", "Median")
+	fmt.Printf("%s\t%*s\t%*s", header, o.columnSize, "Mean", o.columnSize, "Median")
 	for _, q := range o.quantiles {
-		fmt.Printf("\t%[0]s", o.columnSize, fmt.Sprintf("%d%%-tile", q))
+		fmt.Printf("\t%*s", o.columnSize, fmt.Sprintf("%d%%-tile", q))
 	}
-	fmt.Println()
+	countStr := "Count"
+	if o.innerRepeats > 1 {
+		countStr = fmt.Sprintf("Runs(x%d)", o.innerRepeats)
+	}
+	fmt.Printf("\t%*s\n", o.columnSize, countStr)
 
 	for ii, namedFn := range o.fns {
 		// Warm-up
@@ -200,10 +254,10 @@ func (o *Options) Done() {
 		if extraSpaces > 0 {
 			name = name + strings.Repeat(" ", extraSpaces)
 		}
-		fmt.Printf("%s\t%[1]s\t%[1]s\t%[1]s", name, o.columnSize, o.prettyPrintFn(r.mean), o.prettyPrintFn(r.median))
+		fmt.Printf("%s\t%*s\t%*s", name, o.columnSize, o.prettyPrintFn(r.mean), o.columnSize, o.prettyPrintFn(r.median))
 		for _, q := range r.quantiles {
-			fmt.Printf("\t%[0]s", o.columnSize, o.prettyPrintFn(q))
+			fmt.Printf("\t%*s", o.columnSize, o.prettyPrintFn(q))
 		}
-		fmt.Println()
+		fmt.Printf("\t%*d\n", o.columnSize, r.count)
 	}
 }

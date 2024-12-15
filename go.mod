@@ -1,4 +1,4 @@
-module go-benchmarks
+module github.com/janpfeifer/go-benchmarks
 
 go 1.23
 
