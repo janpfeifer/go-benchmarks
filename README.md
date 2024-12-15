@@ -3,7 +3,7 @@
 [![GoDev](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/github.com/janpfeifer/go-benchmarks)
 [![GitHub](https://img.shields.io/github/license/janpfeifer/go-benchmarks)](https://github.com/Kwynto/gosession/blob/master/LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/janpfeifer/go-benchmarks)](https://goreportcard.com/report/github.com/janpfeifer/go-benchmarks)
-[![TestStatus](github.com/janpfeifer/go-benchmarks/actions/workflows/go.yaml/badge.svg)](https://github.com/janpfeifer/go-benchmarks/actions/workflows/go.yaml)
+[![TestStatus](https://github.com/janpfeifer/go-benchmarks/actions/workflows/go.yaml/badge.svg)](https://github.com/janpfeifer/go-benchmarks/actions/workflows/go.yaml)
 
 Can be incorporated in tests, or in stand-alone programs.
 
