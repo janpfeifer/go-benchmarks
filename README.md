@@ -18,6 +18,28 @@ Can be incorporated in tests, or in stand-alone programs.
   Duration pretty-printing function can be arbitrarily configured.
 * Includes also median, and arbitrary percentiles (default to 5 and 99).
 
+Outputs will look like this:
+
+```
+Benchmarks:                           Mean          Median         5%-tile        99%-tile      Count(x10)
+TestBenchArena/arena/1               263ns           262ns           259ns           272ns          334047
+TestBenchArena/arena/5               285ns           284ns           280ns           296ns          311296
+TestBenchArena/arena/10              322ns           321ns           316ns           366ns          279129
+TestBenchArena/arena/100             968ns           963ns           948ns           1.1µs           99799                                              
+TestBenchArena/arenaPool/1           148ns           148ns           143ns           160ns          537448
+TestBenchArena/arenaPool/5           173ns           172ns           168ns           185ns          477437
+TestBenchArena/arenaPool/10          209ns           207ns           203ns           244ns          407099
+TestBenchArena/arenaPool/100         877ns           851ns           826ns           1.1µs          109780
+TestBenchArena/malloc/1              232ns           231ns           227ns           240ns          373248
+TestBenchArena/malloc/5              890ns           887ns           881ns           1.0µs          108137
+TestBenchArena/malloc/10             1.7µs           1.7µs           1.7µs           1.9µs           57526
+TestBenchArena/malloc/100           16.4µs          16.3µs          16.2µs          16.7µs            6101
+TestBenchArena/go+pinner/1           156ns           153ns           146ns           186ns          514560
+TestBenchArena/go+pinner/5           557ns           545ns           535ns           703ns          168819
+TestBenchArena/go+pinner/10          1.1µs           1.1µs           1.0µs           1.5µs           85634
+TestBenchArena/go+pinner/100        12.3µs          11.8µs          11.5µs          34.4µs            8137
+```
+
 ## Examples
 
 ### Simple Example
