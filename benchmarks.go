@@ -43,6 +43,7 @@ type Options struct {
 	duration              time.Duration
 	tolerance             float64
 	columnSize            int
+	header                bool
 }
 
 // NamedFunction holds a function to be benchmarked and its name.
@@ -90,6 +91,7 @@ func New(fns ...NamedFunction) *Options {
 		duration:      1 * time.Second,
 		tolerance:     0.001,
 		columnSize:    10,
+		header:        true,
 	}
 }
 
@@ -154,6 +156,13 @@ func (o *Options) WithColumnSize(columnSize int) *Options {
 	return o
 }
 
+// WithHeader sets whether to display a header.
+// Default is true.
+func (o *Options) WithHeader(printHeader bool) *Options {
+	o.header = printHeader
+	return o
+}
+
 func nanosecondsEstimate(est *quantile.Estimator, quantile float64) time.Duration {
 	return time.Duration(int(est.Get(quantile))) * time.Nanosecond
 }
@@ -209,6 +218,9 @@ collection:
 func (o *Options) Done() {
 	// First column
 	header := "Benchmarks:"
+	if !o.header {
+		header = ""
+	}
 	maxLen := len(header)
 	runeCount := make([]int, len(o.fns))
 	for ii, namedFn := range o.fns {
@@ -217,19 +229,21 @@ func (o *Options) Done() {
 	}
 
 	// Header
-	extraSpaces := maxLen - len(header)
-	if extraSpaces > 0 {
-		header = header + strings.Repeat(" ", extraSpaces)
+	if o.header {
+		extraSpaces := maxLen - len(header)
+		if extraSpaces > 0 {
+			header = header + strings.Repeat(" ", extraSpaces)
+		}
+		fmt.Printf("%s\t%*s\t%*s", header, o.columnSize, "Mean", o.columnSize, "Median")
+		for _, q := range o.quantiles {
+			fmt.Printf("\t%*s", o.columnSize, fmt.Sprintf("%d%%-tile", q))
+		}
+		countStr := "Count"
+		if o.innerRepeats > 1 {
+			countStr = fmt.Sprintf("Runs(x%d)", o.innerRepeats)
+		}
+		fmt.Printf("\t%*s\n", o.columnSize, countStr)
 	}
-	fmt.Printf("%s\t%*s\t%*s", header, o.columnSize, "Mean", o.columnSize, "Median")
-	for _, q := range o.quantiles {
-		fmt.Printf("\t%*s", o.columnSize, fmt.Sprintf("%d%%-tile", q))
-	}
-	countStr := "Count"
-	if o.innerRepeats > 1 {
-		countStr = fmt.Sprintf("Runs(x%d)", o.innerRepeats)
-	}
-	fmt.Printf("\t%*s\n", o.columnSize, countStr)
 
 	for ii, namedFn := range o.fns {
 		// Warm-up
