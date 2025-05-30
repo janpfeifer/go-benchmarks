@@ -7,7 +7,9 @@
 
 Can be incorporated in tests, or in stand-alone programs.
 
-> **Note**: for more stability in tests, consider the following:
+> [!Tip]
+> For more stability in tests, consider the following:
+> 
 > 1. Fixing the CPU frequency on the box being used. Typically, in a linux box this can be done with the tool `cpupower`.
 >    For instance `sudo cpupower frequency-set -r -d 3000000 -u 3000000` will set the min and max frequency to 3Ghz.
 > 2. Set your benchmark to only use the same class of CPUs, if you have heterogeneous cores. Newer Intel CPUs have P-core and E-core,
