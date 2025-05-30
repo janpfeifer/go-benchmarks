@@ -16,6 +16,9 @@ Can be incorporated in tests, or in stand-alone programs.
 >    and when some test falls on an E-core it "destroys" the benchmark. See `taskset` command-line tool to fix the affinity to a
 >    set of cores.
 
+> [!Note]
+> For a full distribution display, checkout the alternative [github.com/loov/hrtime](https://github.com/loov/hrtime?tab=readme-ov-file#benchmarking)
+
 ## Highlights:
 
 * Pretty-printing of the duration of each execution (to avoid having to count
