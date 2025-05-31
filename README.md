@@ -15,7 +15,7 @@ Can be incorporated in tests, or in stand-alone programs.
 > 2. Set your benchmark to only use the same class of CPUs, if you have heterogeneous cores. Newer Intel CPUs have P-core and E-core,
 >    and when some test falls on an E-core it "destroys" the benchmark. See `taskset` command-line tool to fix the affinity to a
 >    set of cores.
-> 3. See [time precision issues](https://github.com/golang/go/issues/67066) is using Windows for benchmarking.
+> 3. See [time precision issues](https://github.com/golang/go/issues/67066) if using Windows for benchmarking.
 
 > [!Note]
 > For a full distribution display, checkout the alternative [github.com/loov/hrtime](https://github.com/loov/hrtime?tab=readme-ov-file#benchmarking)
