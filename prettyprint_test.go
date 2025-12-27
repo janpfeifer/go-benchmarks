@@ -1,17 +1,28 @@
 package benchmarks
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
 )
 
 func TestPrettyPrint(t *testing.T) {
-	require.Equal(t, "123ns", PrettyPrint(123*time.Nanosecond))
-	require.Equal(t, "1.3µs", PrettyPrint(1270*time.Nanosecond))
-	require.Equal(t, "1.2ms", PrettyPrint(1230*time.Microsecond))
-	require.Equal(t, "180.3s", PrettyPrint(180280*time.Millisecond))
-	require.Equal(t, "5m07.2s", PrettyPrint(5*time.Minute+7200*time.Millisecond))
-	require.Equal(t, "3h05m07s", PrettyPrint(3*time.Hour+5*time.Minute+7200*time.Millisecond))
-	require.Equal(t, "100d 3h05m07s", PrettyPrint(100*24*time.Hour+3*time.Hour+5*time.Minute+7200*time.Millisecond))
+	tests := []struct {
+		input time.Duration
+		want  string
+	}{
+		{123 * time.Nanosecond, "123ns"},
+		{1270 * time.Nanosecond, "1.3µs"},
+		{1230 * time.Microsecond, "1.2ms"},
+		{180280 * time.Millisecond, "180.3s"},
+		{5*time.Minute + 7200*time.Millisecond, "5m07.2s"},
+		{3*time.Hour + 5*time.Minute + 7200*time.Millisecond, "3h05m07s"},
+		{100*24*time.Hour + 3*time.Hour + 5*time.Minute + 7200*time.Millisecond, "100d 3h05m07s"},
+	}
+
+	for _, tt := range tests {
+		got := PrettyPrint(tt.input)
+		if got != tt.want {
+			t.Errorf("PrettyPrint(%v) = %q, want %q", tt.input, got, tt.want)
+		}
+	}
 }
